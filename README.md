@@ -8,6 +8,7 @@ The application uses Python, OpenCV, Google MediaPipe, and FastAPI. Camera proce
 
 - [Setup Guide](SETUP.md): Install and run Driver Guard on Fedora or Windows.
 - [Project Details](DETAILS.md): Learn how the camera, MediaPipe, detection logic, backend, and dashboard work.
+- [Version Comparison](COMPARISON.md): Compare the original dlib script with the current application.
 
 ## Quick Start
 
