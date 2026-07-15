@@ -1,0 +1,231 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Driver Monitor · Cockpit</title>
+<link rel="icon" href="data:,">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/css/style.css">
+</head>
+<body>
+
+<!-- ============================= HEADER ============================= -->
+<header class="topbar">
+  <div class="topbar__brand">
+    <svg class="brand-mark" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="16" cy="16" r="14.5" stroke="currentColor" stroke-width="1.5"/>
+      <path d="M9 18c1.5-5 4.5-8 7-8s5.5 3 7 8" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      <circle cx="12.5" cy="15" r="1.4" fill="currentColor"/>
+      <circle cx="19.5" cy="15" r="1.4" fill="currentColor"/>
+    </svg>
+    <div class="brand-text">
+      <span class="brand-title">DRIVER&nbsp;MONITOR</span>
+      <span class="brand-subtitle">Alertness Cockpit</span>
+    </div>
+  </div>
+
+  <div class="topbar__status" id="connectionPill">
+    <span class="dot"></span>
+    <span id="connectionLabel">Connecting…</span>
+  </div>
+
+  <div class="topbar__meta">
+    <div class="meta-item">
+      <span class="meta-label">Session</span>
+      <span class="meta-value mono" id="sessionTime">00:00:00</span>
+    </div>
+    <div class="meta-item">
+      <span class="meta-label">FPS</span>
+      <span class="meta-value mono" id="fpsValue">--</span>
+    </div>
+    <button class="icon-btn" id="settingsBtn" title="Settings" aria-label="Open settings">
+      <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M12 15.5a3.5 3.5 0 100-7 3.5 3.5 0 000 7z" stroke="currentColor" stroke-width="1.6"/>
+        <path d="M19.4 13.5c.04-.33.06-.66.06-1s-.02-.67-.06-1l2.02-1.58a.5.5 0 00.12-.63l-1.92-3.32a.5.5 0 00-.6-.22l-2.39.96a7.4 7.4 0 00-1.73-1l-.36-2.53a.5.5 0 00-.5-.43h-3.84a.5.5 0 00-.5.43l-.36 2.53c-.63.24-1.2.58-1.73 1l-2.39-.96a.5.5 0 00-.6.22L2.66 9.3a.5.5 0 00.12.63L4.8 11.5c-.04.33-.06.66-.06 1s.02.67.06 1l-2.02 1.58a.5.5 0 00-.12.63l1.92 3.32c.13.22.4.31.6.22l2.39-.96c.53.42 1.1.76 1.73 1l.36 2.53c.04.25.26.43.5.43h3.84c.24 0 .46-.18.5-.43l.36-2.53c.63-.24 1.2-.58 1.73-1l2.39.96c.22.09.47 0 .6-.22l1.92-3.32a.5.5 0 00-.12-.63L19.4 13.5z" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/>
+      </svg>
+    </button>
+  </div>
+</header>
+
+<!-- ============================ ALERT BANNER ========================== -->
+<div class="alert-banner" id="alertBanner" role="alert" aria-live="assertive">
+  <span class="alert-banner__icon" id="alertBannerIcon">⚠</span>
+  <span class="alert-banner__text" id="alertBannerText">All systems normal</span>
+</div>
+
+<!-- ============================ I'M AWAKE BUTTON ========================= -->
+<button class="awake-btn" id="awakeBtn" aria-label="I am awake">
+  <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" class="awake-btn__icon">
+    <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+    <path d="M12 8v4l2.5 2.5" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+  <span class="awake-btn__text">I'm Awake</span>
+</button>
+
+<!-- ============================= MAIN GRID ============================ -->
+<main class="dashboard">
+
+  <!-- ---- LEFT COLUMN: camera feed ---- -->
+  <section class="panel panel--camera glass">
+    <div class="panel__header">
+      <h2>Live Feed</h2>
+      <span class="face-chip" id="faceChip">
+        <span class="dot"></span> <span id="faceChipLabel">Locating driver…</span>
+      </span>
+    </div>
+    <div class="camera-frame" id="cameraFrame">
+      <img id="videoFeed" alt="Live driver camera feed" />
+      <div class="camera-overlay" id="cameraOverlay">
+        <p id="cameraOverlayText">Waiting for camera…</p>
+      </div>
+      <div class="camera-frame__scanline"></div>
+    </div>
+    <div class="panel__footnote">
+      Outline color reflects current status · face landmarks are processed entirely on-device by the backend
+    </div>
+  </section>
+
+  <!-- ---- RIGHT COLUMN ---- -->
+  <section class="right-col">
+
+    <!-- Status hero -->
+    <div class="panel panel--status glass" id="statusPanel" data-level="0">
+      <div class="status-hero">
+        <div class="status-ring" id="statusRing">
+          <span class="status-ring__level" id="statusLevelNum">–</span>
+        </div>
+        <div class="status-hero__text">
+          <span class="status-hero__label">Driver State</span>
+          <h1 class="status-hero__value" id="statusValue">Initializing</h1>
+        </div>
+      </div>
+      <ul class="reason-list" id="reasonList">
+        <li class="reason-list__empty">Waiting for the first reading…</li>
+      </ul>
+    </div>
+
+    <!-- Signal meters -->
+    <div class="gauge-row">
+      <div class="panel panel--gauge glass">
+        <div class="panel__header panel__header--tight">
+          <div>
+            <h3>Eye Openness</h3>
+            <span class="signal-subtitle">EAR signal</span>
+          </div>
+          <span class="mono gauge-readout" id="earReadout">0.000</span>
+        </div>
+        <div class="signal-meter signal-meter--ear">
+          <div class="signal-meter__zones"></div>
+          <span class="signal-meter__indicator" id="earNeedle"></span>
+          <span class="signal-meter__hub"></span>
+        </div>
+        <div class="signal-scale"><span>Closed</span><span id="earThresholdLabel">Threshold 0.25</span><span>Open</span></div>
+      </div>
+
+      <div class="panel panel--gauge glass">
+        <div class="panel__header panel__header--tight">
+          <div>
+            <h3>Mouth Opening</h3>
+            <span class="signal-subtitle">MAR signal</span>
+          </div>
+          <span class="mono gauge-readout" id="marReadout">0.000</span>
+        </div>
+        <div class="signal-meter signal-meter--mar">
+          <div class="signal-meter__zones"></div>
+          <span class="signal-meter__indicator" id="marNeedle"></span>
+          <span class="signal-meter__hub"></span>
+        </div>
+        <div class="signal-scale"><span>Closed</span><span id="marThresholdLabel">Threshold 0.55</span><span>Yawn</span></div>
+      </div>
+    </div>
+
+    <!-- Metric strip -->
+    <div class="panel panel--metrics glass">
+      <div class="metric">
+        <span class="metric__label">Blink Count</span>
+        <span class="metric__value mono" id="blinkCount">0</span>
+      </div>
+      <div class="metric">
+        <span class="metric__label">Blink Frequency</span>
+        <span class="metric__value mono" id="blinkFreq">0<small>/min</small></span>
+      </div>
+      <div class="metric">
+        <span class="metric__label">Eye Closure</span>
+        <span class="metric__value mono" id="eyeClosure">0.0<small>s</small></span>
+      </div>
+      <div class="metric">
+        <span class="metric__label">Yawns (5 min)</span>
+        <span class="metric__value mono" id="yawnCount">0</span>
+      </div>
+      <div class="metric">
+        <span class="metric__label">Face Detected</span>
+        <span class="metric__value mono" id="faceStatus">–</span>
+      </div>
+    </div>
+
+  </section>
+</main>
+
+<!-- ============================ SETTINGS MODAL ========================= -->
+<div class="modal-backdrop" id="settingsBackdrop">
+  <div class="settings-modal glass" role="dialog" aria-modal="true" aria-labelledby="settingsTitle">
+    <div class="settings-modal__header">
+      <div>
+        <h2 id="settingsTitle">Settings</h2>
+        <p class="settings-modal__subtitle">Tune how the system decides what "fatigued" and "asleep" mean.</p>
+      </div>
+      <button class="icon-btn" id="closeSettings" aria-label="Close settings">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M6 6l12 12M18 6L6 18" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+      </button>
+    </div>
+
+    <div class="mode-toggle">
+      <button class="mode-toggle__btn is-active" data-mode="beginner" id="beginnerModeBtn">Beginner</button>
+      <button class="mode-toggle__btn" data-mode="advanced" id="advancedModeBtn">Advanced</button>
+    </div>
+
+    <!-- BEGINNER MODE -->
+    <div class="settings-body" id="beginnerBody">
+      <p class="settings-hint">Three big dials control everything. Advanced Mode unlocks the individual rules these dials adjust.</p>
+
+      <div class="scratch-block scratch-block--eyes">
+        <div class="scratch-block__label">👁 Eye Sensitivity</div>
+        <p class="scratch-block__desc">How easily "eyes closed" is triggered. Higher = detects closing sooner.</p>
+        <input type="range" class="slider" id="beginnerEyeSensitivity" min="0.14" max="0.28" step="0.01">
+      </div>
+
+      <div class="scratch-block scratch-block--mouth">
+        <div class="scratch-block__label">👄 Yawn Sensitivity</div>
+        <p class="scratch-block__desc">How wide the mouth must open to count as a yawn. Higher = requires a bigger yawn.</p>
+        <input type="range" class="slider" id="beginnerYawnSensitivity" min="0.40" max="0.85" step="0.02">
+      </div>
+
+      <div class="scratch-block scratch-block--engine">
+        <div class="scratch-block__label">🧮 Alert Strictness</div>
+        <p class="scratch-block__desc">How many fatigue signs must agree before warning the driver.</p>
+        <div class="segmented" id="beginnerStrictness">
+          <button data-value="1">Sensitive</button>
+          <button data-value="2">Balanced</button>
+          <button data-value="3">Strict</button>
+        </div>
+      </div>
+
+      <button class="btn-secondary" id="resetDefaultsBeginner">Reset to defaults</button>
+    </div>
+
+    <!-- ADVANCED MODE -->
+    <div class="settings-body" id="advancedBody" hidden>
+      <p class="settings-hint">Every threshold the decision engine uses, grouped by rule. Changes apply live.</p>
+      <div id="advancedBlocks" class="advanced-blocks"><!-- populated by settings.js --></div>
+      <button class="btn-secondary" id="resetDefaultsAdvanced">Reset all to defaults</button>
+    </div>
+  </div>
+</div>
+
+<script src="/js/audio.js"></script>
+<script src="/js/settings.js"></script>
+<script src="/js/app.js"></script>
+</body>
+</html>
