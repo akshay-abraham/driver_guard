@@ -8,57 +8,104 @@ Install these tools before continuing:
 
 - Git
 - Python 3 with `venv` and `pip`
-- `wget`
 - A working webcam
 
-On Ubuntu/Debian:
+### Fedora
 
 ```bash
-sudo apt update
-sudo apt install git python3 python3-venv python3-pip wget
+sudo dnf install git python3 python3-pip wget
 ```
+
+### Windows
+
+Install current versions of Git and Python, then open PowerShell. The Windows commands below use PowerShell's built-in `Invoke-WebRequest`, so `wget` is not required.
 
 ## Install
 
-1. Clone the repository and enter it:
+1. Clone the repository and enter it.
+
+Fedora:
 
 ```bash
 git clone https://github.com/akshay-abraham/driver_guard.git
 cd driver_guard
 ```
 
-2. Create and activate a virtual environment:
+Windows PowerShell:
+
+```powershell
+git clone https://github.com/akshay-abraham/driver_guard.git
+Set-Location .\driver_guard
+```
+
+2. Create and activate a virtual environment.
+
+Fedora:
 
 ```bash
 python3 -m venv venv
 source venv/bin/activate
 ```
 
-On Windows PowerShell, activate it with:
+Windows PowerShell:
 
 ```powershell
-venv\Scripts\Activate.ps1
+python -m venv .\venv
+.\venv\Scripts\Activate.ps1
 ```
 
-3. Upgrade `pip` and install the Python libraries:
+If PowerShell blocks activation, run this once in the current window and activate again:
+
+```powershell
+Set-ExecutionPolicy -Scope Process -ExecutionPolicy Bypass
+.\venv\Scripts\Activate.ps1
+```
+
+3. Upgrade `pip` and install the Python libraries.
+
+Fedora:
 
 ```bash
 python -m pip install --upgrade pip
 python -m pip install -r requirements.txt
 ```
 
-4. Download the Google MediaPipe Face Landmarker model manually:
+Windows PowerShell:
+
+```powershell
+python -m pip install --upgrade pip
+python -m pip install -r .\requirements.txt
+```
+
+4. Download the Google MediaPipe Face Landmarker model manually.
+
+Fedora:
 
 ```bash
-mkdir -p "$HOME/.cache/dms"
-wget -O "$HOME/.cache/dms/face_landmarker.task" "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
+mkdir -p models
+wget -O models/face_landmarker.task "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task"
+```
+
+Windows PowerShell:
+
+```powershell
+New-Item -ItemType Directory -Force -Path .\models
+Invoke-WebRequest -Uri "https://storage.googleapis.com/mediapipe-models/face_landmarker/face_landmarker/float16/1/face_landmarker.task" -OutFile .\models\face_landmarker.task
 ```
 
 ## Run
 
 Start the application from the repository root while the virtual environment is active:
 
+Fedora:
+
 ```bash
+python -m backend.main
+```
+
+Windows PowerShell:
+
+```powershell
 python -m backend.main
 ```
 

@@ -54,7 +54,7 @@ _MODEL_URL = (
     "https://storage.googleapis.com/mediapipe-models/face_landmarker/"
     "face_landmarker/float16/1/face_landmarker.task"
 )
-_MODEL_CACHE_PATH = Path.home() / ".cache" / "dms" / "face_landmarker.task"
+_MODEL_CACHE_PATH = Path(__file__).resolve().parents[2] / "models" / "face_landmarker.task"
 
 
 @dataclass
